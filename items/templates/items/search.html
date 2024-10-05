@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Items</title>
+    <style>
+        .item {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        .recommendations {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Search Items</h1>
+    <form method="get">
+        <input type="text" name="q" value="{{ query|default_if_none:'' }}">
+        <select name="category">
+            <option value="">All Categories</option>
+            {% for facet in category_facets %}
+                <option value="{{ facet.key }}" {% if facet.key == selected_category %}selected{% endif %}>
+                    {{ facet.key }} ({{ facet.doc_count }})
+                </option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Search">
+    </form>
+    
+    <h2>Results</h2>
+    {% for result in results %}
+        <div class="item">
+            <h3>{{ result.item.title }}</h3>
+            <p>{{ result.item.description }}</p>
+            <p>Category: {{ result.item.category }}</p>
+            <p>Tags: {{ result.item.tags.all|join:", " }}</p>
+            
+            <div class="recommendations">
+                <h4>Recommendations:</h4>
+                <ul>
+                {% for recommendation in result.recommendations %}
+                    <li>{{ recommendation.title }} (Category: {{ recommendation.category }})</li>
+                {% empty %}
+                    <li>No recommendations found.</li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% empty %}
+        <p>No items found.</p>
+    {% endfor %}
+
+    {% if results.has_other_pages %}
+        <div class="pagination">
+            {% if results.has_previous %}
+                <a href="?q={{ query }}&category={{ selected_category }}&page={{ results.previous_page_number }}">&laquo; Previous</a>
+            {% endif %}
+
+            {% for i in results.paginator.page_range %}
+                {% if results.number == i %}
+                    <span>{{ i }}</span>
+                {% else %}
+                    <a href="?q={{ query }}&category={{ selected_category }}&page={{ i }}">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if results.has_next %}
+                <a href="?q={{ query }}&category={{ selected_category }}&page={{ results.next_page_number }}">Next &raquo;</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</body>
+</html>

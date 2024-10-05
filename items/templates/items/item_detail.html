@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ item.title }}</title>
+</head>
+<body>
+    <h1>{{ item.title }}</h1>
+    <p>{{ item.description }}</p>
+    <p>Category: {{ item.category }}</p>
+    <p>Tags: {{ item.tags.all|join:", " }}</p>
+    
+    <h2>Recommendations:</h2>
+    <ul>
+    {% for recommendation in recommendations %}
+        <li>{{ recommendation.title }} (Category: {{ recommendation.category }}, Tags: {{ recommendation.tags.all|join:", " }})</li>
+    {% empty %}
+        <li>No recommendations found.</li>
+    {% endfor %}
+    </ul>
+</body>
+</html>
